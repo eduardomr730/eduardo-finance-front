@@ -59,17 +59,21 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center justify-between rounded-2xl px-4 py-3 text-sm transition",
+                "flex items-center justify-between rounded-2xl px-4 py-3 text-sm transition-colors",
                 active
-                  ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                  ? "bg-[var(--accent-strong)] text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)]"
                   : "hover:bg-black/5 dark:hover:bg-white/5",
               )}
             >
-              <span className="flex items-center gap-3">
+              <span className="flex items-center gap-3 text-inherit">
                 <Icon className="size-4" />
                 {item.label}
               </span>
-              {item.href === "/taxes" ? <Badge tone="warning">ES</Badge> : null}
+              {item.href === "/taxes" ? (
+                <Badge tone={active ? "neutral" : "warning"} className={active ? "bg-white/15 text-white" : ""}>
+                  ES
+                </Badge>
+              ) : null}
             </Link>
           );
         })}

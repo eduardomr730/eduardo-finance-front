@@ -1,4 +1,8 @@
 import { createTransactionAction } from "@/server/actions";
+import {
+  deleteTransactionAction,
+  updateTransactionAction,
+} from "@/server/actions";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -79,24 +83,55 @@ export default async function TransactionsPage() {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b text-left text-[var(--muted)]">
-                <th className="pb-3">Fecha</th>
-                <th className="pb-3">Descripcion</th>
-                <th className="pb-3">Categoria</th>
-                <th className="pb-3">Cuenta</th>
-                <th className="pb-3">Tipo</th>
-                <th className="pb-3 text-right">Importe</th>
+                <th className="pb-3">Editar transacción</th>
               </tr>
             </thead>
             <tbody>
               {data.transactions.map((transaction) => (
                 <tr key={transaction.id} className="border-b border-[var(--line)]">
-                  <td className="py-3">{transaction.date.toLocaleDateString("es-ES")}</td>
-                  <td className="py-3">{transaction.description}</td>
-                  <td className="py-3">{transaction.category?.name ?? "-"}</td>
-                  <td className="py-3">{transaction.account?.name ?? "-"}</td>
-                  <td className="py-3">{transaction.type}</td>
-                  <td className="py-3 text-right font-medium">
-                    {formatCurrency(Number(transaction.amount))}
+                  <td className="py-3">
+                    <form action={updateTransactionAction} className="grid gap-2 xl:grid-cols-[140px_1.2fr_1fr_1fr_140px_160px_auto] xl:items-center">
+                      <input type="hidden" name="id" value={transaction.id} />
+                      <Input name="date" type="date" defaultValue={transaction.date.toISOString().slice(0, 10)} required />
+                      <Input name="description" defaultValue={transaction.description} required />
+                      <Select name="categoryId" defaultValue={transaction.categoryId ?? ""}>
+                        <option value="">Sin categoria</option>
+                        {data.categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </Select>
+                      <Select name="accountId" defaultValue={transaction.accountId ?? ""}>
+                        {data.accounts.map((account) => (
+                          <option key={account.id} value={account.id}>
+                            {account.name}
+                          </option>
+                        ))}
+                      </Select>
+                      <Select name="type" defaultValue={transaction.type}>
+                        <option value="INCOME">Ingreso</option>
+                        <option value="EXPENSE">Gasto</option>
+                        <option value="INVESTMENT">Inversion</option>
+                        <option value="TAX">Impuesto</option>
+                        <option value="TRANSFER">Transferencia</option>
+                      </Select>
+                      <Input name="amount" type="number" step="0.01" defaultValue={String(Number(transaction.amount))} required />
+                      <div className="flex justify-end gap-2">
+                        <Button type="submit" variant="secondary">Guardar</Button>
+                        <Button
+                          type="submit"
+                          formAction={deleteTransactionAction}
+                          variant="ghost"
+                          className="text-rose-500"
+                        >
+                          Borrar
+                        </Button>
+                      </div>
+                    </form>
+                    <p className="mt-2 text-xs text-[var(--muted)]">
+                      {transaction.merchant ?? "-"} · {formatCurrency(Number(transaction.amount))}
+                    </p>
                   </td>
                 </tr>
               ))}

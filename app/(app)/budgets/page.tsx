@@ -1,4 +1,5 @@
 import { createBudgetAction } from "@/server/actions";
+import { deleteBudgetAction, updateBudgetAction } from "@/server/actions";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
@@ -65,7 +66,7 @@ export default async function BudgetsPage() {
             />
           ) : null}
           {data.items.map((item) => (
-            <div key={item.category} className="rounded-2xl border p-4">
+            <form key={item.category} action={updateBudgetAction} className="rounded-2xl border p-4">
               <div className="mb-3 flex items-center justify-between">
                 <div>
                   <p className="font-medium">{item.category}</p>
@@ -85,13 +86,35 @@ export default async function BudgetsPage() {
                   {formatPercent(item.consumptionRate)}
                 </Badge>
               </div>
+              <input type="hidden" name="id" value={item.id} />
               <div className="h-2 rounded-full bg-black/5 dark:bg-white/8">
                 <div
                   className="h-2 rounded-full bg-[var(--accent)]"
                   style={{ width: `${Math.min(item.consumptionRate * 100, 100)}%` }}
                 />
               </div>
-            </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-4">
+                <Select
+                  name="categoryId"
+                  defaultValue={item.categoryId ?? ""}
+                >
+                  {data.categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </Select>
+                <Input name="amount" type="number" step="0.01" defaultValue={String(item.budgeted)} />
+                <Input name="month" type="date" defaultValue={item.month.toISOString().slice(0, 10)} />
+                <Input name="alertPercent" type="number" defaultValue={String(item.alertPercent)} />
+              </div>
+              <div className="mt-4 flex gap-2">
+                <Button type="submit" variant="secondary">Guardar</Button>
+                <Button type="submit" formAction={deleteBudgetAction} variant="ghost" className="text-rose-500">
+                  Borrar
+                </Button>
+              </div>
+            </form>
           ))}
         </CardContent>
       </Card>

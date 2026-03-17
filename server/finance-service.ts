@@ -209,11 +209,17 @@ export async function getBudgetsData() {
         .filter((transaction) => transaction.categoryId === budget.categoryId)
         .reduce((sum, transaction) => sum + toNumber(transaction.amount), 0),
     );
-    return calculateBudgetProgress(
-      budget.category?.name ?? "General",
-      toNumber(budget.amount),
-      spent,
-    );
+    return {
+      id: budget.id,
+      categoryId: budget.categoryId,
+      month: budget.month,
+      alertPercent: budget.alertPercent,
+      ...calculateBudgetProgress(
+        budget.category?.name ?? "General",
+        toNumber(budget.amount),
+        spent,
+      ),
+    };
   });
 
   return {
@@ -248,7 +254,7 @@ export async function getInvestmentsData() {
   const user = await getCurrentUser();
   if (!user) return null;
 
-  const [assets, transactions] = await Promise.all([
+  const [assets, transactions, accounts] = await Promise.all([
     prisma.investmentAsset.findMany({
       where: { userId: user.id },
       orderBy: { name: "asc" },
@@ -259,9 +265,13 @@ export async function getInvestmentsData() {
       orderBy: { tradeDate: "desc" },
       take: 24,
     }),
+    prisma.account.findMany({
+      where: { userId: user.id, isActive: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
-  return { user, assets, transactions };
+  return { user, assets, transactions, accounts };
 }
 
 export async function getNetWorthData() {

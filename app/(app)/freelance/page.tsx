@@ -1,4 +1,5 @@
 import { createInvoiceAction } from "@/server/actions";
+import { deleteInvoiceAction, updateInvoiceAction } from "@/server/actions";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
@@ -70,19 +71,34 @@ export default async function FreelancePage() {
                   <th className="pb-3">IRPF ret.</th>
                   <th className="pb-3">Pendiente</th>
                   <th className="pb-3 text-right">Banco</th>
+                  <th className="pb-3 text-right">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {data.invoices.map((invoice) => (
                   <tr key={invoice.id} className="border-b border-[var(--line)]">
-                    <td className="py-3">{invoice.issueDate.toLocaleDateString("es-ES")}</td>
-                    <td className="py-3">{invoice.clientName}</td>
-                    <td className="py-3">{formatCurrency(Number(invoice.baseAmount))}</td>
-                    <td className="py-3">{formatCurrency(Number(invoice.vatAmount))}</td>
-                    <td className="py-3">{formatCurrency(Number(invoice.withholdingAmount))}</td>
-                    <td className="py-3">{formatCurrency(Number(invoice.pendingIrpfProvision))}</td>
-                    <td className="py-3 text-right font-medium">
-                      {formatCurrency(Number(invoice.expectedBankAmount))}
+                    <td className="py-3" colSpan={8}>
+                      <form action={updateInvoiceAction} className="grid gap-3 xl:grid-cols-[140px_1.2fr_repeat(4,140px)_auto] xl:items-center">
+                        <input type="hidden" name="id" value={invoice.id} />
+                        <Input name="issueDate" type="date" defaultValue={invoice.issueDate.toISOString().slice(0, 10)} />
+                        <Input name="clientName" defaultValue={invoice.clientName} />
+                        <Input name="baseAmount" type="number" step="0.01" defaultValue={String(Number(invoice.baseAmount))} />
+                        <Input name="vatRate" type="number" step="0.01" defaultValue={String(Number(invoice.vatRate))} />
+                        <Input name="withholdingRate" type="number" step="0.01" defaultValue={String(Number(invoice.withholdingRate))} />
+                        <Input name="effectiveIrpfRate" type="number" step="0.01" defaultValue={String(Number(invoice.estimatedIrpfRate))} />
+                        <div className="flex justify-end gap-2">
+                          <Button type="submit" variant="secondary">Guardar</Button>
+                          <Button type="submit" formAction={deleteInvoiceAction} variant="ghost" className="text-rose-500">
+                            Borrar
+                          </Button>
+                        </div>
+                      </form>
+                      <div className="mt-3 grid gap-2 text-sm text-[var(--muted)] md:grid-cols-4">
+                        <span>IVA {formatCurrency(Number(invoice.vatAmount))}</span>
+                        <span>IRPF ret. {formatCurrency(Number(invoice.withholdingAmount))}</span>
+                        <span>Pendiente {formatCurrency(Number(invoice.pendingIrpfProvision))}</span>
+                        <span>Banco {formatCurrency(Number(invoice.expectedBankAmount))}</span>
+                      </div>
                     </td>
                   </tr>
                 ))}
