@@ -11,9 +11,9 @@ import {
   calculateNetWorth,
   calculateRealSavings,
 } from "@/domain/finance";
-import { DEMO_USER_EMAIL } from "@/lib/constants";
 import { prisma } from "@/lib/db";
 import { toNumber } from "@/lib/prisma-helpers";
+import { ensureWorkspace } from "@/server/workspace";
 
 const dashboardInclude = {
   settings: true,
@@ -35,8 +35,10 @@ const dashboardInclude = {
 
 export async function getCurrentUser() {
   try {
+    const workspace = await ensureWorkspace();
+
     return await prisma.user.findUnique({
-      where: { email: DEMO_USER_EMAIL },
+      where: { id: workspace.id },
       include: dashboardInclude,
     });
   } catch (error) {
@@ -182,7 +184,7 @@ export async function getBudgetsData() {
   if (!user) return null;
   const month = startOfMonth(new Date());
 
-  const [budgets, transactions] = await Promise.all([
+  const [budgets, transactions, categories] = await Promise.all([
     prisma.budget.findMany({
       where: { userId: user.id, month },
       include: { category: true },
@@ -194,6 +196,10 @@ export async function getBudgetsData() {
         type: TransactionType.EXPENSE,
         date: { gte: month },
       },
+    }),
+    prisma.category.findMany({
+      where: { userId: user.id, kind: TransactionType.EXPENSE, isActive: true },
+      orderBy: { sortOrder: "asc" },
     }),
   ]);
 
@@ -214,6 +220,7 @@ export async function getBudgetsData() {
     user,
     items,
     totals: calculateBudgetTotals(items),
+    categories,
   };
 }
 
@@ -309,6 +316,10 @@ export async function getSettingsData() {
     settings: user.settings,
     salaryProfile: user.salaryProfiles[0] ?? null,
     accounts: user.accounts,
+    categories: await prisma.category.findMany({
+      where: { userId: user.id, isActive: true },
+      orderBy: { sortOrder: "asc" },
+    }),
   };
 }
 

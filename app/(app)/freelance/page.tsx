@@ -1,6 +1,11 @@
+import { createInvoiceAction } from "@/server/actions";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/formatters";
 import { getFreelanceData } from "@/server/finance-service";
 
@@ -16,6 +21,28 @@ export default async function FreelancePage() {
         title="Modulo autonomo"
         subtitle="El nucleo financiero de la app: facturacion, IVA, IRPF retenido, IRPF real estimado, provisiones y neto realmente disponible."
       />
+      <Card>
+        <CardHeader>
+          <CardTitle>Nueva factura emitida</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form action={createInvoiceAction} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <Input name="clientName" placeholder="Cliente" required />
+            <Input name="baseAmount" type="number" step="0.01" placeholder="Base imponible" required />
+            <Input name="issueDate" type="date" required />
+            <Input name="paidDate" type="date" />
+            <Input name="vatRate" type="number" step="0.01" placeholder="IVA 0.21" defaultValue="0.21" />
+            <Input name="withholdingRate" type="number" step="0.01" placeholder="IRPF retenido 0.15" defaultValue="0.15" />
+            <Input name="effectiveIrpfRate" type="number" step="0.01" placeholder="IRPF real 0.24" defaultValue="0.24" />
+            <div className="md:col-span-2 xl:col-span-4">
+              <Textarea name="notes" placeholder="Notas" />
+            </div>
+            <div className="xl:col-span-4">
+              <Button type="submit">Guardar factura</Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_420px]">
         <Card>
           <CardHeader>
@@ -27,6 +54,12 @@ export default async function FreelancePage() {
             </div>
           </CardHeader>
           <CardContent className="overflow-x-auto">
+            {data.invoices.length === 0 ? (
+              <EmptyState
+                title="Aún no hay facturas"
+                description="Empieza registrando tus facturas emitidas para que la app calcule IVA, retenciones, provisión pendiente y neto real disponible."
+              />
+            ) : null}
             <table className="min-w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-[var(--muted)]">

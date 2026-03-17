@@ -1,5 +1,15 @@
+import {
+  createAccountAction,
+  resetWorkspaceDataAction,
+  saveSalaryProfileAction,
+} from "@/server/actions";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Header } from "@/components/layout/header";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency } from "@/lib/formatters";
 import { getSettingsData } from "@/server/finance-service";
 
@@ -38,15 +48,78 @@ export default async function SettingsPage() {
             <SettingRow label="Pagas" value={String(data.salaryProfile?.payPeriods ?? 12)} />
             <div className="rounded-2xl border p-4">
               <p className="mb-3 text-sm text-[var(--muted)]">Cuentas activas</p>
-              <div className="space-y-3">
-                {data.accounts.map((account) => (
-                  <div key={account.id} className="flex items-center justify-between text-sm">
-                    <span>{account.name}</span>
-                    <span className="text-[var(--muted)]">{account.type}</span>
-                  </div>
-                ))}
-              </div>
+              {data.accounts.length === 0 ? (
+                <EmptyState
+                  title="No hay cuentas todavía"
+                  description="Crea al menos una cuenta para empezar a registrar ingresos, gastos y transferencias."
+                />
+              ) : (
+                <div className="space-y-3">
+                  {data.accounts.map((account) => (
+                    <div key={account.id} className="flex items-center justify-between text-sm">
+                      <span>{account.name}</span>
+                      <span className="text-[var(--muted)]">{account.type}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </CardContent>
+        </Card>
+      </div>
+      <div className="grid gap-6 xl:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Añadir cuenta</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={createAccountAction} className="space-y-4">
+              <Input name="name" placeholder="Nombre de la cuenta" required />
+              <Input name="institution" placeholder="Banco o broker" />
+              <Input name="openingBalance" type="number" step="0.01" defaultValue="0" />
+              <Select name="type" defaultValue="CHECKING">
+                <option value="CHECKING">Cuenta corriente</option>
+                <option value="TAX">Cuenta impuestos</option>
+                <option value="SAVINGS">Cuenta ahorro</option>
+                <option value="INVESTMENT">Cuenta inversion</option>
+                <option value="CASH">Efectivo</option>
+              </Select>
+              <label className="flex items-center gap-3 rounded-2xl border px-4 py-2.5 text-sm">
+                <input type="checkbox" name="isTaxReserved" />
+                Reservada para Hacienda
+              </label>
+              <Button type="submit">Crear cuenta</Button>
+            </form>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Configurar salario</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form action={saveSalaryProfileAction} className="space-y-4">
+              <Input name="employer" placeholder="Empresa" defaultValue={data.salaryProfile?.employer ?? ""} required />
+              <Input name="grossAnnual" type="number" step="0.01" placeholder="Bruto anual" defaultValue={String(Number(data.salaryProfile?.grossAnnual ?? 0))} required />
+              <Input name="netMonthly" type="number" step="0.01" placeholder="Neto mensual" defaultValue={String(Number(data.salaryProfile?.netMonthly ?? 0))} required />
+              <Input name="payPeriods" type="number" min="1" max="14" defaultValue={String(data.salaryProfile?.payPeriods ?? 12)} />
+              <Input name="retentionRate" type="number" step="0.01" placeholder="Retencion 0.18" defaultValue={String(Number(data.salaryProfile?.retentionRate ?? 0))} />
+              <Input name="monthlyBonus" type="number" step="0.01" placeholder="Bonus mensual" defaultValue={String(Number(data.salaryProfile?.monthlyBonus ?? 0))} />
+              <Textarea name="notes" placeholder="Observaciones" defaultValue={data.salaryProfile?.notes ?? ""} />
+              <Button type="submit">Guardar perfil salarial</Button>
+            </form>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Vaciar datos</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-[var(--muted)]">
+              Borra cuentas, transacciones, presupuestos, facturas, inversiones y snapshots para empezar desde cero manteniendo categorías y configuración base.
+            </p>
+            <form action={resetWorkspaceDataAction}>
+              <Button type="submit" variant="secondary">Vaciar workspace</Button>
+            </form>
           </CardContent>
         </Card>
       </div>

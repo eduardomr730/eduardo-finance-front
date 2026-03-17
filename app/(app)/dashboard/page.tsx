@@ -4,6 +4,7 @@ import { CashflowChart } from "@/components/charts/cashflow-chart";
 import { KpiCard } from "@/components/dashboard/kpi-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { formatCurrency, formatPercent } from "@/lib/formatters";
 import { getDashboardData } from "@/server/finance-service";
 
@@ -14,12 +15,27 @@ export default async function DashboardPage() {
     return <div>No hay datos. Ejecuta el seed inicial.</div>;
   }
 
+  const hasOperationalData =
+    data.budgetItems.length > 0 ||
+    data.recentInvoices.length > 0 ||
+    data.snapshots.length > 0 ||
+    data.kpis.income !== 0 ||
+    data.kpis.expenses !== 0;
+
   return (
     <section className="space-y-6">
       <Header
         title="Dashboard operativo"
         subtitle="Vista ejecutiva de caja, gasto, inversion y fiscalidad real. El foco es diferenciar dinero que entra en banco de dinero realmente disponible."
       />
+      {!hasOperationalData ? (
+        <EmptyState
+          title="Tu espacio financiero está listo, pero vacío"
+          description="Empieza creando tus cuentas, configurando tu salario y registrando tus primeras transacciones o facturas. La app ya no carga datos demo por defecto."
+          actionHref="/settings"
+          actionLabel="Configurar mi espacio"
+        />
+      ) : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <KpiCard label="Ingresos del mes" value={data.kpis.income} hint="Incluye salario y cobros de autonomo" tone="positive" />
