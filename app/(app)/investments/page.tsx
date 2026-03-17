@@ -6,6 +6,7 @@ import {
   updateInvestmentAssetAction,
 } from "@/server/actions";
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -32,23 +33,41 @@ export default async function InvestmentsPage() {
           </CardHeader>
           <CardContent>
             <form action={createInvestmentAssetAction} className="grid gap-4 md:grid-cols-2">
-              <Input name="name" placeholder="Nombre del activo" required />
-              <Input name="ticker" placeholder="Ticker" />
-              <Input name="assetType" placeholder="ETF, Fondo, Accion..." defaultValue="ETF" />
-              <Select name="accountId">
-                <option value="">Sin cuenta</option>
-                {data.accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name}
-                  </option>
-                ))}
-              </Select>
-              <Input name="units" type="number" step="0.000001" defaultValue="0" />
-              <Input name="averageCost" type="number" step="0.01" defaultValue="0" />
-              <Input name="currentPrice" type="number" step="0.01" defaultValue="0" />
-              <Input name="currentValue" type="number" step="0.01" defaultValue="0" />
+              <Field label="Nombre del activo">
+                <Input name="name" placeholder="Ej. Vanguard S&P 500" required />
+              </Field>
+              <Field label="Ticker">
+                <Input name="ticker" placeholder="Ej. VUSA" />
+              </Field>
+              <Field label="Tipo de activo">
+                <Input name="assetType" placeholder="ETF, Fondo, Accion..." defaultValue="ETF" />
+              </Field>
+              <Field label="Cuenta asociada">
+                <Select name="accountId">
+                  <option value="">Sin cuenta</option>
+                  {data.accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Participaciones">
+                <Input name="units" type="number" step="0.000001" defaultValue="0" />
+              </Field>
+              <Field label="Coste medio">
+                <Input name="averageCost" type="number" step="0.01" defaultValue="0" />
+              </Field>
+              <Field label="Precio actual">
+                <Input name="currentPrice" type="number" step="0.01" defaultValue="0" />
+              </Field>
+              <Field label="Valor actual">
+                <Input name="currentValue" type="number" step="0.01" defaultValue="0" />
+              </Field>
               <div className="md:col-span-2">
-                <Textarea name="notes" placeholder="Notas" />
+                <Field label="Notas">
+                  <Textarea name="notes" placeholder="Observaciones del activo" />
+                </Field>
               </div>
               <div className="md:col-span-2">
                 <Button type="submit">Crear activo</Button>
@@ -62,35 +81,53 @@ export default async function InvestmentsPage() {
           </CardHeader>
           <CardContent>
             <form action={createInvestmentTransactionAction} className="grid gap-4 md:grid-cols-2">
-              <Select name="assetId" required>
-                <option value="">Selecciona activo</option>
-                {data.assets.map((asset) => (
-                  <option key={asset.id} value={asset.id}>
-                    {asset.name}
-                  </option>
-                ))}
-              </Select>
-              <Select name="accountId">
-                <option value="">Sin cuenta</option>
-                {data.accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name}
-                  </option>
-                ))}
-              </Select>
-              <Select name="type" defaultValue="CONTRIBUTION">
-                <option value="CONTRIBUTION">Aportacion</option>
-                <option value="BUY">Compra</option>
-                <option value="SELL">Venta</option>
-                <option value="DIVIDEND">Dividendo</option>
-              </Select>
-              <Input name="tradeDate" type="date" required />
-              <Input name="units" type="number" step="0.000001" defaultValue="0" />
-              <Input name="price" type="number" step="0.01" defaultValue="0" />
-              <Input name="fees" type="number" step="0.01" defaultValue="0" />
-              <Input name="totalAmount" type="number" step="0.01" defaultValue="0" />
+              <Field label="Activo">
+                <Select name="assetId" required>
+                  <option value="">Selecciona activo</option>
+                  {data.assets.map((asset) => (
+                    <option key={asset.id} value={asset.id}>
+                      {asset.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Cuenta">
+                <Select name="accountId">
+                  <option value="">Sin cuenta</option>
+                  {data.accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.name}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Tipo de movimiento">
+                <Select name="type" defaultValue="CONTRIBUTION">
+                  <option value="CONTRIBUTION">Aportacion</option>
+                  <option value="BUY">Compra</option>
+                  <option value="SELL">Venta</option>
+                  <option value="DIVIDEND">Dividendo</option>
+                </Select>
+              </Field>
+              <Field label="Fecha">
+                <Input name="tradeDate" type="date" required />
+              </Field>
+              <Field label="Participaciones">
+                <Input name="units" type="number" step="0.000001" defaultValue="0" />
+              </Field>
+              <Field label="Precio">
+                <Input name="price" type="number" step="0.01" defaultValue="0" />
+              </Field>
+              <Field label="Comisiones">
+                <Input name="fees" type="number" step="0.01" defaultValue="0" />
+              </Field>
+              <Field label="Importe total">
+                <Input name="totalAmount" type="number" step="0.01" defaultValue="0" />
+              </Field>
               <div className="md:col-span-2">
-                <Textarea name="notes" placeholder="Notas" />
+                <Field label="Notas">
+                  <Textarea name="notes" placeholder="Detalle adicional del movimiento" />
+                </Field>
               </div>
               <div className="md:col-span-2">
                 <Button type="submit">Registrar movimiento</Button>
@@ -115,21 +152,37 @@ export default async function InvestmentsPage() {
               <form key={asset.id} action={updateInvestmentAssetAction} className="rounded-2xl border p-4">
                 <input type="hidden" name="id" value={asset.id} />
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                  <Input name="name" defaultValue={asset.name} />
-                  <Input name="ticker" defaultValue={asset.ticker ?? ""} />
-                  <Input name="assetType" defaultValue={asset.assetType} />
-                  <Select name="accountId" defaultValue={asset.accountId ?? ""}>
-                    <option value="">Sin cuenta</option>
-                    {data.accounts.map((account) => (
-                      <option key={account.id} value={account.id}>
-                        {account.name}
-                      </option>
-                    ))}
-                  </Select>
-                  <Input name="units" type="number" step="0.000001" defaultValue={String(Number(asset.units))} />
-                  <Input name="averageCost" type="number" step="0.01" defaultValue={String(Number(asset.averageCost))} />
-                  <Input name="currentPrice" type="number" step="0.01" defaultValue={String(Number(asset.currentPrice))} />
-                  <Input name="currentValue" type="number" step="0.01" defaultValue={String(Number(asset.currentValue))} />
+                  <Field label="Nombre">
+                    <Input name="name" defaultValue={asset.name} />
+                  </Field>
+                  <Field label="Ticker">
+                    <Input name="ticker" defaultValue={asset.ticker ?? ""} />
+                  </Field>
+                  <Field label="Tipo">
+                    <Input name="assetType" defaultValue={asset.assetType} />
+                  </Field>
+                  <Field label="Cuenta">
+                    <Select name="accountId" defaultValue={asset.accountId ?? ""}>
+                      <option value="">Sin cuenta</option>
+                      {data.accounts.map((account) => (
+                        <option key={account.id} value={account.id}>
+                          {account.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </Field>
+                  <Field label="Participaciones">
+                    <Input name="units" type="number" step="0.000001" defaultValue={String(Number(asset.units))} />
+                  </Field>
+                  <Field label="Coste medio">
+                    <Input name="averageCost" type="number" step="0.01" defaultValue={String(Number(asset.averageCost))} />
+                  </Field>
+                  <Field label="Precio actual">
+                    <Input name="currentPrice" type="number" step="0.01" defaultValue={String(Number(asset.currentPrice))} />
+                  </Field>
+                  <Field label="Valor actual">
+                    <Input name="currentValue" type="number" step="0.01" defaultValue={String(Number(asset.currentValue))} />
+                  </Field>
                 </div>
                 <p className="mt-3 text-sm text-[var(--muted)]">
                   Valor actual {formatCurrency(Number(asset.currentValue))} · {Number(asset.units).toFixed(3)} uds

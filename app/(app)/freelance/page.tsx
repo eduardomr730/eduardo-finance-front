@@ -1,6 +1,7 @@
 import { createInvoiceAction } from "@/server/actions";
 import { deleteInvoiceAction, updateInvoiceAction } from "@/server/actions";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Field } from "@/components/ui/field";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,15 +29,31 @@ export default async function FreelancePage() {
         </CardHeader>
         <CardContent>
           <form action={createInvoiceAction} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Input name="clientName" placeholder="Cliente" required />
-            <Input name="baseAmount" type="number" step="0.01" placeholder="Base imponible" required />
-            <Input name="issueDate" type="date" required />
-            <Input name="paidDate" type="date" />
-            <Input name="vatRate" type="number" step="0.01" placeholder="IVA 0.21" defaultValue="0.21" />
-            <Input name="withholdingRate" type="number" step="0.01" placeholder="IRPF retenido 0.15" defaultValue="0.15" />
-            <Input name="effectiveIrpfRate" type="number" step="0.01" placeholder="IRPF real 0.24" defaultValue="0.24" />
+            <Field label="Cliente">
+              <Input name="clientName" placeholder="Nombre del cliente" required />
+            </Field>
+            <Field label="Base imponible">
+              <Input name="baseAmount" type="number" step="0.01" placeholder="0.00" required />
+            </Field>
+            <Field label="Fecha de emisión">
+              <Input name="issueDate" type="date" required />
+            </Field>
+            <Field label="Fecha de cobro">
+              <Input name="paidDate" type="date" />
+            </Field>
+            <Field label="IVA">
+              <Input name="vatRate" type="number" step="0.01" placeholder="0.21" defaultValue="0.21" />
+            </Field>
+            <Field label="IRPF retenido">
+              <Input name="withholdingRate" type="number" step="0.01" placeholder="0.15" defaultValue="0.15" />
+            </Field>
+            <Field label="IRPF real estimado">
+              <Input name="effectiveIrpfRate" type="number" step="0.01" placeholder="0.24" defaultValue="0.24" />
+            </Field>
             <div className="md:col-span-2 xl:col-span-4">
-              <Textarea name="notes" placeholder="Notas" />
+              <Field label="Notas">
+                <Textarea name="notes" placeholder="Observaciones sobre la factura" />
+              </Field>
             </div>
             <div className="xl:col-span-4">
               <Button type="submit">Guardar factura</Button>
@@ -80,12 +97,24 @@ export default async function FreelancePage() {
                     <td className="py-3" colSpan={8}>
                       <form action={updateInvoiceAction} className="grid gap-3 xl:grid-cols-[140px_1.2fr_repeat(4,140px)_auto] xl:items-center">
                         <input type="hidden" name="id" value={invoice.id} />
-                        <Input name="issueDate" type="date" defaultValue={invoice.issueDate.toISOString().slice(0, 10)} />
-                        <Input name="clientName" defaultValue={invoice.clientName} />
-                        <Input name="baseAmount" type="number" step="0.01" defaultValue={String(Number(invoice.baseAmount))} />
-                        <Input name="vatRate" type="number" step="0.01" defaultValue={String(Number(invoice.vatRate))} />
-                        <Input name="withholdingRate" type="number" step="0.01" defaultValue={String(Number(invoice.withholdingRate))} />
-                        <Input name="effectiveIrpfRate" type="number" step="0.01" defaultValue={String(Number(invoice.estimatedIrpfRate))} />
+                        <Field label="Emisión">
+                          <Input name="issueDate" type="date" defaultValue={invoice.issueDate.toISOString().slice(0, 10)} />
+                        </Field>
+                        <Field label="Cliente">
+                          <Input name="clientName" defaultValue={invoice.clientName} />
+                        </Field>
+                        <Field label="Base">
+                          <Input name="baseAmount" type="number" step="0.01" defaultValue={String(Number(invoice.baseAmount))} />
+                        </Field>
+                        <Field label="IVA">
+                          <Input name="vatRate" type="number" step="0.01" defaultValue={String(Number(invoice.vatRate))} />
+                        </Field>
+                        <Field label="IRPF retenido">
+                          <Input name="withholdingRate" type="number" step="0.01" defaultValue={String(Number(invoice.withholdingRate))} />
+                        </Field>
+                        <Field label="IRPF real">
+                          <Input name="effectiveIrpfRate" type="number" step="0.01" defaultValue={String(Number(invoice.estimatedIrpfRate))} />
+                        </Field>
                         <div className="flex justify-end gap-2">
                           <Button type="submit" variant="secondary">Guardar</Button>
                           <Button type="submit" formAction={deleteInvoiceAction} variant="ghost" className="text-rose-500">

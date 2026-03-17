@@ -1,6 +1,7 @@
 import { createBudgetAction } from "@/server/actions";
 import { deleteBudgetAction, updateBudgetAction } from "@/server/actions";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Field } from "@/components/ui/field";
 import { Header } from "@/components/layout/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,22 +27,30 @@ export default async function BudgetsPage() {
         </CardHeader>
         <CardContent>
           <form action={createBudgetAction} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Select name="categoryId" required>
-              <option value="">Selecciona categoria</option>
-              {data.categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </Select>
-            <Input name="amount" type="number" step="0.01" placeholder="Importe mensual" required />
-            <Input
-              name="month"
-              type="date"
-              defaultValue={new Date().toISOString().slice(0, 10)}
-              required
-            />
-            <Input name="alertPercent" type="number" min="1" max="100" defaultValue="80" />
+            <Field label="Categoría">
+              <Select name="categoryId" required>
+                <option value="">Selecciona categoria</option>
+                {data.categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Importe mensual">
+              <Input name="amount" type="number" step="0.01" placeholder="0.00" required />
+            </Field>
+            <Field label="Mes presupuestado">
+              <Input
+                name="month"
+                type="date"
+                defaultValue={new Date().toISOString().slice(0, 10)}
+                required
+              />
+            </Field>
+            <Field label="Alerta (%)">
+              <Input name="alertPercent" type="number" min="1" max="100" defaultValue="80" />
+            </Field>
             <div className="xl:col-span-4">
               <Button type="submit">Guardar presupuesto</Button>
             </div>
@@ -94,19 +103,27 @@ export default async function BudgetsPage() {
                 />
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-4">
-                <Select
-                  name="categoryId"
-                  defaultValue={item.categoryId ?? ""}
-                >
-                  {data.categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </Select>
-                <Input name="amount" type="number" step="0.01" defaultValue={String(item.budgeted)} />
-                <Input name="month" type="date" defaultValue={item.month.toISOString().slice(0, 10)} />
-                <Input name="alertPercent" type="number" defaultValue={String(item.alertPercent)} />
+                <Field label="Categoría">
+                  <Select
+                    name="categoryId"
+                    defaultValue={item.categoryId ?? ""}
+                  >
+                    {data.categories.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <Field label="Importe">
+                  <Input name="amount" type="number" step="0.01" defaultValue={String(item.budgeted)} />
+                </Field>
+                <Field label="Mes">
+                  <Input name="month" type="date" defaultValue={item.month.toISOString().slice(0, 10)} />
+                </Field>
+                <Field label="Alerta (%)">
+                  <Input name="alertPercent" type="number" defaultValue={String(item.alertPercent)} />
+                </Field>
               </div>
               <div className="mt-4 flex gap-2">
                 <Button type="submit" variant="secondary">Guardar</Button>
