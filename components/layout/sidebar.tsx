@@ -36,8 +36,8 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="glass sticky top-6 h-[calc(100vh-3rem)] rounded-[2rem] border p-5">
-      <div className="mb-10 flex items-center gap-3">
+    <aside className="glass rounded-[1.75rem] border p-4 lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] lg:rounded-[2rem] lg:p-5">
+      <div className="mb-4 flex items-center gap-3 lg:mb-10">
         <div className="flex size-12 items-center justify-center rounded-2xl bg-[var(--accent)]/15">
           <BadgeEuro className="size-6 text-[var(--accent)]" />
         </div>
@@ -49,7 +49,7 @@ export function Sidebar() {
         </div>
       </div>
 
-      <nav className="space-y-2">
+      <nav className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:block lg:space-y-2 lg:overflow-visible lg:px-0 lg:pb-0">
         {NAV_ITEMS.map((item) => {
           const Icon = iconMap[item.href as keyof typeof iconMap] ?? CircleDollarSign;
           const active = pathname === item.href;
@@ -59,18 +59,21 @@ export function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center justify-between rounded-2xl px-4 py-3 text-sm transition-colors",
+                "flex shrink-0 items-center gap-3 rounded-2xl px-4 py-3 text-sm transition-colors lg:justify-between",
                 active
                   ? "bg-[var(--accent-strong)] text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)]"
                   : "hover:bg-black/5 dark:hover:bg-white/5",
               )}
             >
-              <span className="flex items-center gap-3 text-inherit">
+              <span className="flex items-center gap-3 whitespace-nowrap text-inherit">
                 <Icon className="size-4" />
                 {item.label}
               </span>
               {item.href === "/taxes" ? (
-                <Badge tone={active ? "neutral" : "warning"} className={active ? "bg-white/15 text-white" : ""}>
+                <Badge
+                  tone={active ? "neutral" : "warning"}
+                  className={cn("hidden lg:inline-flex", active ? "bg-white/15 text-white" : "")}
+                >
                   ES
                 </Badge>
               ) : null}

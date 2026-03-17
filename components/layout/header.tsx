@@ -14,10 +14,11 @@ export function Header({ title, subtitle }: { title: string; subtitle: string })
         <p className="mb-2 text-xs uppercase tracking-[0.32em] text-[var(--muted)]">
           Finance OS
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
-        <p className="mt-2 max-w-3xl text-sm text-[var(--muted)]">{subtitle}</p>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">{subtitle}</p>
       </div>
       <Button
+        className="w-full sm:w-auto"
         variant="secondary"
         onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
       >
