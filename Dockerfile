@@ -1,5 +1,7 @@
 FROM node:22-alpine AS deps
 WORKDIR /app
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public"
+ENV DIRECT_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public"
 COPY package.json package-lock.json ./
 COPY prisma ./prisma
 COPY prisma.config.ts ./
@@ -7,6 +9,8 @@ RUN npm ci
 
 FROM node:22-alpine AS builder
 WORKDIR /app
+ENV DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public"
+ENV DIRECT_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder?schema=public"
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npx prisma generate
