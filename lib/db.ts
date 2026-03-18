@@ -1,50 +1,84 @@
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
-import { Pool } from "pg";
+import { Pool, type QueryResultRow } from "pg";
 
 declare global {
-  var prisma: PrismaClient | undefined;
-  var pgPool: Pool | undefined;
+  var financePool: Pool | undefined;
+  var financeSchemaPromise: Promise<void> | undefined;
 }
 
-function createPrismaClient() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is required to initialize Prisma.");
+function getPool() {
+  const databaseUrl = process.env.DATABASE_URL;
+
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is not configured.");
   }
 
-  const pool =
-    global.pgPool ??
-    new Pool({
-      connectionString,
-      max: 10,
-      ssl: false,
+  if (!global.financePool) {
+    global.financePool = new Pool({
+      connectionString: databaseUrl,
+      ssl: databaseUrl.includes("localhost")
+        ? false
+        : {
+            rejectUnauthorized: false,
+          },
     });
-  const adapter = new PrismaPg(pool);
-  const client =
-    global.prisma ??
-    new PrismaClient({
-      adapter,
-      log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
-    });
-
-  if (process.env.NODE_ENV !== "production") {
-    global.pgPool = pool;
-    global.prisma = client;
   }
 
-  return client;
+  return global.financePool;
 }
 
-let prismaClient: PrismaClient | undefined;
+export async function ensureSchema() {
+  if (!process.env.DATABASE_URL) {
+    return false;
+  }
 
-function getPrismaClient() {
-  prismaClient ??= createPrismaClient();
-  return prismaClient;
+  if (!global.financeSchemaPromise) {
+    global.financeSchemaPromise = (async () => {
+      const pool = getPool();
+
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS incomes (
+          id BIGSERIAL PRIMARY KEY,
+          month DATE NOT NULL,
+          source TEXT NOT NULL DEFAULT '',
+          amount NUMERIC(12, 2) NOT NULL CHECK (amount >= 0),
+          note TEXT NOT NULL DEFAULT '',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS budgets (
+          id BIGSERIAL PRIMARY KEY,
+          name TEXT NOT NULL,
+          category TEXT NOT NULL DEFAULT '',
+          monthly_limit NUMERIC(12, 2) NOT NULL CHECK (monthly_limit >= 0),
+          note TEXT NOT NULL DEFAULT '',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+
+        CREATE TABLE IF NOT EXISTS expenses (
+          id BIGSERIAL PRIMARY KEY,
+          budget_id BIGINT NOT NULL REFERENCES budgets(id) ON DELETE CASCADE,
+          spent_on DATE NOT NULL,
+          description TEXT NOT NULL,
+          amount NUMERIC(12, 2) NOT NULL CHECK (amount >= 0),
+          note TEXT NOT NULL DEFAULT '',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        );
+
+        CREATE INDEX IF NOT EXISTS incomes_month_idx ON incomes (month);
+        CREATE INDEX IF NOT EXISTS expenses_spent_on_idx ON expenses (spent_on DESC);
+        CREATE INDEX IF NOT EXISTS expenses_budget_id_idx ON expenses (budget_id);
+      `);
+    })();
+  }
+
+  await global.financeSchemaPromise;
+  return true;
 }
 
-export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop, receiver) {
-    return Reflect.get(getPrismaClient(), prop, receiver);
-  },
-});
+export async function query<T extends QueryResultRow>(
+  text: string,
+  params: unknown[] = [],
+) {
+  await ensureSchema();
+  return getPool().query<T>(text, params);
+}

@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-
-import { APP_NAME } from "@/lib/constants";
-import { AppProviders } from "@/components/providers/app-providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: APP_NAME,
-  description: "Personal finance operating system para Espana con foco en salario, autonomo e impuestos.",
+  title: "Finance Hub",
+  description: "Control mensual de ingresos, budgets y gastos personales.",
 };
 
 export default function RootLayout({
@@ -15,10 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body className="antialiased">
-        <AppProviders>{children}</AppProviders>
-      </body>
+    <html lang="es" className="h-full antialiased">
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
